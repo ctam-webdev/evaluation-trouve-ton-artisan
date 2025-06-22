@@ -1,0 +1,57 @@
+{
+  "name": "artisan",
+  "version": "1.0.0",
+  "description": "Plateforme de mise en relation entre artisans et particuliers pour la région Auvergne Rhône-Alpes.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/server/server.js",
+    "server": "nodemon src/server/server.js",
+    "client": "cross-env PORT=3000 react-scripts start",
+    "dev": "concurrently \"npm run server\" \"npm run client\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ctam-webdev/evaluation-trouve-ton-artisan.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "bugs": {
+    "url": "https://github.com/ctam-webdev/evaluation-trouve-ton-artisan/issues"
+  },
+  "homepage": ".",
+  "dependencies": {
+    "bootstrap": "^5.3.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "mysql2": "^3.14.1",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-router-dom": "^7.6.2",
+    "sass": "^1.89.2",
+    "sequelize": "^6.37.7"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.27.4",
+    "@babel/preset-env": "^7.27.2",
+    "@babel/preset-react": "^7.27.1",
+    "concurrently": "^9.2.0",
+    "cross-env": "^7.0.3",
+    "nodemon": "^3.1.10",
+    "react-scripts": "^5.0.1"
+  }
+}
