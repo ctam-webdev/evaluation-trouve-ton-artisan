@@ -2,55 +2,41 @@ import React, { useState, useEffect } from 'react';
 import ArtisanCard from '../components/ArtisanCard.js';
 
 const Home = () => {
-  // Artisans du mois ajoutés manuellement (premiers artisans)
-  const artisansManuels = [
-    {
-      id: 1,
-      nom: "Chocolaterie Labbé",
-      specialite: "Chocolatier",
-      localisation: "Lyon",
-      note: 4.9,
-      isManuel: true,
-      image: "img-chocolaterie-labbe.jpg"
-    },
-    {
-      id: 2,
-      nom: "Au pain chaud",
-      specialite: "Boulanger",
-      localisation: "Montélimar",
-      note: 4.8,
-      isManuel: true,
-      image: "img-au-pain-chaud.jpg"
-    },
-    {
-      id: 3,
-      nom: "Boucherie Dumont",
-      specialite: "Boucher",
-      localisation: "Lyon",
-      note: 4.5,
-      isManuel: true,
-      image: "img-boucherie-dumont.jpg"
-    }
-  ];
+  const [artisansDuMois, setArtisansDuMois] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // État pour stocker tous les artisans du mois (manuels + automatiques)
-  const [artisansDuMois, setArtisansDuMois] = useState(artisansManuels);
+  // Noms des artisans du mois
+  const nomsArtisansDuMois = ["Au pain chaud", "Chocolaterie Labbé", "Orville Salmons"];
 
   useEffect(() => {
-    // Récupération des artisans automatiques depuis la base de données
-    const fetchArtisansAutomatiques = async () => {
-      try {
-        const response = await fetch('/api/artisans-du-mois');
-        const artisansAuto = await response.json();
-        setArtisansDuMois([...artisansManuels, ...artisansAuto]);
-      } catch (error) {
-        console.error('Erreur lors de la récupération des artisans:', error);
-      }
-    };
-
-    // Exécution de la fonction
-    fetchArtisansAutomatiques();
+    // Récupérer tous les artisans pour trouver ceux du mois
+    fetch('http://localhost:3001/api/artisans')
+      .then(response => response.json())
+      .then(artisans => {
+        // Filtrer pour ne garder que les artisans du mois avec leurs vrais IDs
+        const artisansFiltres = artisans
+          .filter(artisan => nomsArtisansDuMois.includes(artisan.nom))
+          .map(artisan => ({
+            id: artisan.id,
+            nom: artisan.nom,
+            specialite: artisan.specialite,
+            localisation: artisan.ville,
+            note: artisan.note,
+            image: artisan.image
+          }));
+        setArtisansDuMois(artisansFiltres);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('Erreur lors de la récupération des artisans du mois:', err);
+        setError(err.message);
+        setLoading(false);
+      });
   }, []);
+
+  if (loading) return <div>Chargement...</div>;
+  if (error) return <div>Erreur : {error}</div>;
 
   return (
     <main className="home">
@@ -89,7 +75,7 @@ const Home = () => {
         <h2>Les artisans du mois :</h2>
         <div className="artisans-grid">
           {artisansDuMois.map((artisan, index) => (
-            <ArtisanCard key={index} {...artisan} />
+            <ArtisanCard key={artisan.id} {...artisan} />
           ))}
         </div>
       </section>

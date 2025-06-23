@@ -16,4 +16,10 @@ body {
 main {
   flex: 1;
   padding: 20px;
+
+  img {
+    max-height: 600px;
+    width: auto;
+    object-fit: contain;
+  }
 }

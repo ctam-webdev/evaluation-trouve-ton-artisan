@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Navigate } from 'react-router-dom';
 
 const ArtisanDetails = () => {
   const { id } = useParams();
@@ -27,10 +27,7 @@ const ArtisanDetails = () => {
   }, [id]);
 
   if (loading) return <div>Chargement...</div>;
-  if (error) return <div>Erreur : {error}</div>;
-  if (!artisan) return <div>Artisan non trouvé</div>;
-
-
+  if (error || !artisan) return <Navigate to="/404" replace />;
 
   return (
     <main className="artisan-details">
