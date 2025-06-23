@@ -4,10 +4,11 @@
   "description": "Plateforme de mise en relation entre artisans et particuliers pour la région Auvergne Rhône-Alpes.",
   "main": "index.js",
   "scripts": {
-    "start": "node src/server/server.js",
-    "server": "nodemon src/server/server.js",
+    "start": "node src/server/routes.js",
+    "server": "nodemon src/server/routes.js",
     "client": "cross-env PORT=3000 react-scripts start",
-    "dev": "concurrently \"npm run server\" \"npm run client\""
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "db:sync": "node src/server/config/sync.js"
   },
   "repository": {
     "type": "git",
@@ -33,17 +34,18 @@
     "url": "https://github.com/ctam-webdev/evaluation-trouve-ton-artisan/issues"
   },
   "homepage": ".",
+
   "dependencies": {
-    "bootstrap": "^5.3.7",
+    "bootstrap": "^5.3.0",
     "cors": "^2.8.5",
-    "dotenv": "^16.5.0",
-    "express": "^5.1.0",
-    "mysql2": "^3.14.1",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "react-router-dom": "^7.6.2",
-    "sass": "^1.89.2",
-    "sequelize": "^6.37.7"
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "mysql2": "^3.6.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.16.0",
+    "sass": "^1.68.0",
+    "sequelize": "^6.33.0"
   },
   "devDependencies": {
     "@babel/core": "^7.27.4",
@@ -51,6 +53,7 @@
     "@babel/preset-react": "^7.27.1",
     "concurrently": "^9.2.0",
     "cross-env": "^7.0.3",
+    "http-proxy-middleware": "^3.0.5",
     "nodemon": "^3.1.10",
     "react-scripts": "^5.0.1"
   }
