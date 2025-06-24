@@ -1,4 +1,6 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+import './Footer.scss';
 
 const Footer = () => {
   return (
@@ -18,14 +20,14 @@ const Footer = () => {
         {/* Liens utiles - préparés pour React Router, mais pas encore implémentés */}
         <div className="footer-links">
           <ul>
-            <li>Mentions légales</li>
-            <li>Données personnelles</li>
-            <li>Accessibilité</li>
-            <li>Presse</li>
-            <li>Marchés publics</li>
-            <li>Venir à la Région</li>
-            <li>Contacts</li>
-            <li>Cookies</li>
+            <li><Link to="/mentions-legales">Mentions légales</Link></li>
+            <li><Link to="/donnees-personnelles">Données personnelles</Link></li>
+            <li><Link to="/accessibilite">Accessibilité</Link></li>
+            <li><Link to="/presse">Presse</Link></li>
+            <li><Link to="/marches-publics">Marchés publics</Link></li>
+            <li><Link to="/venir-region">Venir à la Région</Link></li>
+            <li><Link to="/contacts">Contacts</Link></li>
+            <li><Link to="/cookies">Cookies</Link></li>
           </ul>
         </div>
       </div>

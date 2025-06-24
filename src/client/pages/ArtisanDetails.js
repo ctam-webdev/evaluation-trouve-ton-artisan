@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Navigate } from 'react-router-dom';
+import ContactForm from '../components/ContactForm.js';
+import '../styles/details.scss';
 
 const ArtisanDetails = () => {
   const { id } = useParams();
@@ -17,6 +19,7 @@ const ArtisanDetails = () => {
         return response.json();
       })
       .then(data => {
+
         setArtisan(data);
         setLoading(false);
       })
@@ -64,19 +67,18 @@ const ArtisanDetails = () => {
       {/* Description et spécialités */}
       <section className="description-section">
         <h2>À propos</h2>
-        <p>{artisan.description}</p>
+        <p>{artisan.a_propos}</p>
         
         <h3>Spécialités</h3>
         <ul>
           <li>{artisan.specialite}</li>
         </ul>
-        <p>Catégorie : {artisan.categorie}</p>
       </section>
 
-      {/* Formulaire de contact - sera implémenté plus tard */}
-      <section className="contact-form">
+      {/* Formulaire de contact */}
+      <section className="contact-form-section">
         <h2>Contacter cet artisan</h2>
-        <p>Le formulaire de contact sera implémenté ici</p>
+        <ContactForm artisanId={artisan.id} artisanNom={artisan.nom} />
       </section>
     </main>
   );

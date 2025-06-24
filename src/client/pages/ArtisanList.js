@@ -1,21 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
+import ArtisanCard from '../components/ArtisanCard.js';
 
-import '../styles/card.scss';
+import '../components/ArtisanCard.scss';
 
 const ArtisanList = () => {
+  // Récupération des paramètres de l'URL
   const [searchParams, setSearchParams] = useSearchParams();
-  const searchTerm = searchParams.get('search');
-  const specialiteParam = searchParams.get('specialite');
+  const searchQuery = searchParams.get('search');
+  const specialiteId = searchParams.get('specialite');
+  const categorieId = searchParams.get('categorie');
+  const [searchQueryState, setSearchQueryState] = useState('');
+  const [expandedCategory, setExpandedCategory] = useState(null);
   const [artisans, setArtisans] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [selectedSpecialite, setSelectedSpecialite] = useState(specialiteParam || '');
+  const [selectedSpecialite, setSelectedSpecialite] = useState(specialiteId || '');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-
-
-  // Charger les catégories
+  // Chargement des catégories
   useEffect(() => {
     fetch('http://localhost:3001/api/categories', {
       headers: {
@@ -28,21 +31,19 @@ const ArtisanList = () => {
       .catch(err => console.error('Erreur catégories:', err));
   }, []);
 
-  // Charger les artisans
+  // Chargement des artisans
   useEffect(() => {
-    let url;
-    // Si on a un terme de recherche, on utilise l'API de recherche
-    if (searchTerm) {
-      url = `http://localhost:3001/api/search?query=${encodeURIComponent(searchTerm)}`;
-    }
-    // Si on a une spécialité (soit depuis l'URL, soit depuis un clic), on utilise l'API de filtrage
-    else if (specialiteParam || selectedSpecialite) {
-      const specId = specialiteParam || selectedSpecialite;
-      url = `http://localhost:3001/api/artisans?specialite=${specId}`;
-    }
-    // Sinon on affiche tous les artisans
-    else {
-      url = 'http://localhost:3001/api/artisans';
+    let url = 'http://localhost:3001/api/artisans';
+    
+    // Ajout des paramètres de recherche si présents
+    const params = new URLSearchParams();
+    if (searchQuery) params.append('search', searchQuery);
+    if (specialiteId) params.append('specialite', specialiteId);
+    if (categorieId) params.append('categorie', categorieId);
+    
+    // Ajout des paramètres à l'URL si présents
+    if (params.toString()) {
+      url += '?' + params.toString();
     }
 
     fetch(url, {
@@ -58,7 +59,7 @@ const ArtisanList = () => {
         return response.json();
       })
       .then(data => {
-        console.log('Artisans reçus:', data);
+
         setArtisans(data);
         setLoading(false);
       })
@@ -67,74 +68,53 @@ const ArtisanList = () => {
         setError(err.message);
         setLoading(false);
       });
-  }, [selectedSpecialite, searchTerm, searchParams]);
+  }, [searchQuery, specialiteId, categorieId]);
 
   if (loading) return <div>Chargement...</div>;
   if (error) return <div>Erreur : {error}</div>;
   if (artisans.length === 0) return <div>Aucun artisan trouvé</div>;
 
+  // Trouver le nom de la catégorie sélectionnée
+  const getCurrentCategory = () => {
+    // Si catégorie sélectionnée
+    if (categorieId) {
+      const categorie = categories.find(c => c.id.toString() === categorieId);
+      if (categorie) return categorie.nom;
+    }
+    
+    // Si spécialité sélectionnée
+    if (selectedSpecialite) {
+      for (const categorie of categories) {
+        const specialite = categorie.Specialites.find(s => s.id.toString() === selectedSpecialite);
+        if (specialite) {
+          return `${categorie.nom} - ${specialite.nom}`;
+        }
+      }
+    }
+    
+    return 'Tous les Artisans';
+  };
+
   return (
     <div className="artisans-page">
       <main>
-        <div>
-          <h2>Catégories</h2>
-          {categories.map(categorie => (
-            <div key={categorie.id}>
-              <h3>{categorie.nom}</h3>
-              {categorie.Specialites.map(specialite => (
-                <button 
-                  key={specialite.id}
-                  onClick={() => {
-                    setSelectedSpecialite(specialite.id.toString());
-                    setSearchParams({ specialite: specialite.id.toString() });
-                  }}
-                  style={{ margin: '0 5px' }}
-                >
-                  {specialite.nom}
-                </button>
-              ))}
-            </div>
-          ))}
-          {selectedSpecialite && (
-            <button onClick={() => {
-              setSelectedSpecialite('');
-              setSearchParams({});
-            }}>
-              Voir tous les artisans
-            </button>
-          )}
-        </div>
+        <h1 className="page-title">{getCurrentCategory()}</h1>
 
         <div className="artisans-list">
-          {artisans.map(artisan => (
-            <Link 
-              to={`/artisan/${artisan.id}`} 
-              key={artisan.id} 
-              className="artisan-card-link"
-              style={{ textDecoration: 'none', color: 'inherit' }}
-            >
-              <div className="artisan-card">
-                <div className="avatar">
-                  <img
-                    src={`${process.env.PUBLIC_URL}/img/${artisan.image}`}
-                    alt={`Photo de ${artisan.nom}`}
-                    onError={(e) => {
-                      e.target.src = `${process.env.PUBLIC_URL}/img/img-default.jpg`;
-                    }}
-                  />
-                </div>
-                <div className="artisan-info">
-                  <h3 className="nom-profession">{artisan.nom}</h3>
-                  <div className="rating">
-                    {[...Array(5)].map((_, index) => (
-                      <span key={index} className={`star ${index < Math.floor(artisan.note) ? 'filled' : ''}`}>★</span>
-                    ))}
-                  </div>
-                  <p className="specialite-localisation">{artisan.ville}</p>
-                </div>
-              </div>
-            </Link>
-          ))}
+          {artisans.map(artisan => {
+
+            return (
+              <ArtisanCard
+                key={artisan.id}
+                id={artisan.id}
+                nom={artisan.nom}
+                specialite={artisan.specialite}
+                localisation={artisan.ville}
+                note={artisan.note}
+                image={artisan.image}
+              />
+            );
+          })}
         </div>
       </main>
     </div>

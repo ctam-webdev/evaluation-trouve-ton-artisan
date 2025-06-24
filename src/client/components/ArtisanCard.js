@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import './ArtisanCard.scss';
 
 const ArtisanCard = ({ id, nom, specialite, localisation, note, image }) => {
   const [imageError, setImageError] = useState(false);
@@ -16,13 +17,16 @@ const ArtisanCard = ({ id, nom, specialite, localisation, note, image }) => {
           onError={() => setImageError(true)}
         />
       </div>
-      <h3>{nom}</h3>
+      
       <div className="artisan-info">
-        <p>{specialite} - {localisation}</p>
+        <h3>{nom}</h3>
         <div className="rating">
           {'★'.repeat(Math.floor(note))}
           {'☆'.repeat(5 - Math.floor(note))}
         </div>
+        <p className="info-text">
+          {specialite} - {localisation}
+        </p>
       </div>
     </Link>
   );

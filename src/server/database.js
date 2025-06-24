@@ -21,16 +21,15 @@ async function initDatabase() {
     const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
       host: process.env.DB_HOST,
       dialect: 'mysql',
-      logging: (msg) => console.log('SQL:', msg)
+      logging: false
     });
 
     // Tester la connexion
     await sequelize.authenticate();
-    console.log('Connexion à la base de données réussie.');
+    console.log('✓ Base de données connectée');
 
     // Vérifier la base et la table
     const [results] = await sequelize.query('SHOW TABLES');
-    console.log('Tables dans la base de données:', results);
 
     return sequelize;
   } catch (error) {
