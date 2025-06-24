@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "node src/server/routes.js",
-    "server": "nodemon src/server/routes.js",
-    "client": "cross-env PORT=3000 react-scripts start",
+    "server": "cross-env NODE_ENV=production nodemon --quiet src/server/routes.js",
+    "client": "cross-env PORT=3000 BROWSER=none WDS_SOCKET_HOST=0.0.0.0 WDS_SOCKET_PORT=0 react-scripts start",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "db:sync": "node src/server/config/sync.js"
   },

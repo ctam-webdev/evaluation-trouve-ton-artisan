@@ -11,25 +11,43 @@ const Home = () => {
 
   useEffect(() => {
     // Récupérer tous les artisans pour trouver ceux du mois
-    fetch('http://localhost:3001/api/artisans')
-      .then(response => response.json())
-      .then(artisans => {
-        // Filtrer pour ne garder que les artisans du mois avec leurs vrais IDs
+    Promise.all([
+      fetch('http://localhost:3001/api/artisans?categorie=1'),
+      fetch('http://localhost:3001/api/artisans?categorie=2'),
+      fetch('http://localhost:3001/api/artisans?categorie=3'),
+      fetch('http://localhost:3001/api/artisans?categorie=4')
+    ])
+      .then(responses => {
+        return Promise.all(responses.map(r => r.json()));
+      })
+      .then(allArtisans => {
+        // Fusion des résultats de toutes les catégories
+        const artisans = allArtisans.flat();
+        
+        // Filtrer pour ne garder que les artisans du mois
         const artisansFiltres = artisans
-          .filter(artisan => nomsArtisansDuMois.includes(artisan.nom))
-          .map(artisan => ({
-            id: artisan.id,
-            nom: artisan.nom,
-            specialite: artisan.specialite,
-            localisation: artisan.ville,
-            note: artisan.note,
-            image: artisan.image
-          }));
+          .filter(artisan => {
+            const isArtisanDuMois = nomsArtisansDuMois.includes(artisan.nom);
+
+            return isArtisanDuMois;
+          })
+          .map(artisan => {
+
+            return {
+              id: artisan.id,
+              nom: artisan.nom,
+              specialite: artisan.specialite,
+              localisation: artisan.ville,
+              note: artisan.note,
+              image: artisan.image
+            };
+          });
+
         setArtisansDuMois(artisansFiltres);
         setLoading(false);
       })
       .catch(err => {
-        console.error('Erreur lors de la récupération des artisans du mois:', err);
+
         setError(err.message);
         setLoading(false);
       });
@@ -40,14 +58,14 @@ const Home = () => {
 
   return (
     <main className="home">
-      {/* Section Bienvenue */}
+      {/* Section "Bienvenue" */}
       <section className="welcome">
         <h1>Bienvenue sur Trouve ton artisan !</h1>
         <p>Un service de la Région Auvergne-Rhône-Alpes</p>
         <p>Retrouvez facilement un artisan de confiance proche de chez vous, recommandé pour son savoir-faire</p>
       </section>
 
-      {/* Section Comment trouver */}
+      {/* Section "Comment trouver" */}
       <section className="how-to-find">
         <h2>Comment trouver mon artisan ?</h2>
         <div className="steps">
@@ -70,13 +88,23 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Section Artisans du mois */}
+      {/* Section "Artisans du mois" */}
       <section className="artisans-du-mois">
         <h2>Les artisans du mois :</h2>
-        <div className="artisans-grid">
-          {artisansDuMois.map((artisan, index) => (
-            <ArtisanCard key={artisan.id} {...artisan} />
-          ))}
+        <div className="artisans-list grid-view">
+          {artisansDuMois.map((artisan) => {
+            return (
+              <ArtisanCard
+                key={artisan.id}
+                id={artisan.id}
+                nom={artisan.nom}
+                specialite={artisan.specialite}
+                localisation={artisan.localisation}
+                note={artisan.note}
+                image={artisan.image}
+              />
+            );
+          })}
         </div>
       </section>
     </main>

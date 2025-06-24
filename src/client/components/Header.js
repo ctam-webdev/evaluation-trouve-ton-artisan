@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import '../styles/suggestions.scss';
+import './Header.scss';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -55,48 +56,71 @@ const Header = () => {
     }
   };
 
-  // Ces catégories viendront de l'API plus tard
-  const categories = [
+  const [categories, setCategories] = useState([
     { id: 1, nom: 'Alimentation' },
     { id: 2, nom: 'Bâtiment' },
     { id: 3, nom: 'Services' },
     { id: 4, nom: 'Fabrication' }
-  ];
+  ]);
+
+  // Chargement des spécialités par catégorie
+  const [specialitesParCategorie, setSpecialitesParCategorie] = useState({});
+
+  useEffect(() => {
+    fetch('http://localhost:3001/api/categories', {
+      headers: {
+        'Accept': 'application/json'
+      },
+      mode: 'cors'
+    })
+      .then(response => response.json())
+      .then(data => {
+        const specialites = {};
+        data.forEach(cat => {
+          specialites[cat.id] = cat.Specialites;
+        });
+        setSpecialitesParCategorie(data);
+      })
+      .catch(err => console.error('Erreur lors du chargement des spécialités:', err));
+  }, []);
 
   return (
     <header className="header">
       <div className="header-content">
         {/* Logo et titre */}
         <div className="header-left">
-          <h1>Trouve ton artisan !</h1>
+          <Link to="/">
+            <img src="/img/logo.png" alt="Trouve ton artisan" className="logo" />
+          </Link>
         </div>
 
-        {/* Barre de recherche */}
-        <form className="search-bar" onSubmit={handleSearch}>
-          <div className="search-container" ref={suggestionsRef}>
-            <input 
-              type="text" 
-              placeholder="Rechercher un artisan..."
-              className="search-input"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            {showSuggestions && searchTerm.length >= 2 && (
-              <div className="suggestions-dropdown">
-                {specialites.length > 0 && (
-                  <div className="specialites-section">
-                    <div className="section-title">Spécialités</div>
-                    {specialites.map((specialite) => (
-                      <div 
-                        key={`spec-${specialite.id}`} 
-                        className="suggestion-item specialite-item"
-                        onClick={() => {
-                          setShowSuggestions(false);
-                          navigate(`/artisans?specialite=${specialite.id}`);
-                        }}
-                      >
-                        <div className="suggestion-name">{specialite.nom}</div>
-                        <div className="suggestion-type">Catégorie</div>
+        {/* Partie droite avec recherche et catégories */}
+        <div className="header-right">
+          <form className="search-bar" onSubmit={handleSearch}>
+            <div className="search-container" ref={suggestionsRef}>
+              <input
+                type="text"
+                placeholder="Rechercher..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onFocus={() => setShowSuggestions(true)}
+              />
+              {showSuggestions && searchTerm && (
+                <div className="suggestions-dropdown">
+                  {specialites.length > 0 && (
+                    <div className="specialites-section">
+                      <div className="section-title">Spécialités</div>
+                      {specialites.map((specialite) => (
+                        <div
+                          key={`spec-${specialite.id}`}
+                          className="suggestion-item specialite-item"
+                          onClick={() => {
+                            setShowSuggestions(false);
+                            navigate(`/artisans?specialite=${specialite.id}`);
+                          }}
+                        >
+                          <div className="suggestion-name">{specialite.nom}</div>
+                          <div className="suggestion-type">Catégorie</div>
                       </div>
                     ))}
                   </div>
@@ -128,10 +152,31 @@ const Header = () => {
               </div>
             )}
           </div>
-          <button type="submit" className="search-button">
-            Rechercher
-          </button>
-        </form>
+          </form>
+
+          {/* Menu des catégories */}
+          <nav className={`categories-menu ${isMenuOpen ? 'open' : ''}`}>
+            <ul>
+              {categories.map(category => {
+                const specialites = specialitesParCategorie[category.id] || [];
+                return (
+                  <li key={category.id}>
+                    <button 
+                      className="category-button"
+                      onClick={() => {
+                        // Rediriger vers la liste des artisans avec la catégorie sélectionnée
+                        navigate(`/artisans?categorie=${category.id}`);
+                        setIsMenuOpen(false);
+                      }}
+                    >
+                      {category.nom}
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </nav>
+        </div>
 
         {/* Bouton menu burger pour mobile */}
         <button 
@@ -139,21 +184,10 @@ const Header = () => {
           onClick={() => setIsMenuOpen(!isMenuOpen)}
         >
           <span className="burger-icon"></span>
+          <span className="burger-icon"></span>
+          <span className="burger-icon"></span>
         </button>
       </div>
-
-      {/* Menu des catégories */}
-      <nav className={`categories-menu ${isMenuOpen ? 'open' : ''}`}>
-        <ul>
-          {categories.map(category => (
-            <li key={category.id}>
-              <button className="category-button">
-                {category.nom}
-              </button>
-            </li>
-          ))}
-        </ul>
-      </nav>
     </header>
   );
 };
